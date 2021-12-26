@@ -1,12 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import './index.css';
-import App from './App';
+import AirTickets from './pages/air-tickets';
 import reportWebVitals from './reportWebVitals';
+import makeServer from './mock'
+
+if (process.env.NODE_ENV === 'development') {
+  makeServer()
+}
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<AirTickets />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );
