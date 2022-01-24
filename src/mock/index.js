@@ -1,4 +1,4 @@
-import {createServer, Factory, Model, Response} from "miragejs";
+import {createServer, Factory, Model} from "miragejs";
 import faker from 'faker';
 
 // 工序1: fake BFF
@@ -55,6 +55,10 @@ const mockServer = ({ environment = 'development' } = {}) => {
 
       this.get('/air-tickets', (schema) => {
         return schema.airTickets.all()
+      })
+
+      this.post('/air-tickets/:id/reserve', () => {
+        return { code: 'success', data: {message: '预定成功'}}
       })
     }
   })

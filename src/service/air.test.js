@@ -1,5 +1,5 @@
 import mockServer from "../mock";
-import { getAirTickets } from "./air";
+import {bookAirFlights, getAirTickets} from "./air";
 
 describe('air service', () => {
   let server
@@ -40,5 +40,11 @@ describe('air service', () => {
         }
       ],
     })
+  })
+
+  it('bookAirTickets successfully', async () => {
+    await expect(bookAirFlights(1)).resolves.toEqual(
+    { code: 'success', data: { message: '预定成功' }}
+    )
   })
 })

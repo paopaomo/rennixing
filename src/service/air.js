@@ -10,4 +10,8 @@ const getAirTickets = ({ from, to, date }) => {
   }).then(res => res.data)
 }
 
-export { getAirTickets }
+const bookAirFlights = (id) => {
+  return request.post(`/air-tickets/${id}/reserve`).then(res => res.data)
+}
+
+export { getAirTickets, bookAirFlights }

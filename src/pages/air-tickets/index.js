@@ -1,6 +1,14 @@
-import {Button, Form, Input, Card, Pagination, Spin, Result} from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Card,
+  Pagination,
+  Spin,
+  Result,
+} from "antd";
 import './index.css';
-import {getAirTickets} from "../../service/air";
+import {bookAirFlights, getAirTickets} from "../../service/air";
 import {useEffect, useMemo, useRef, useState} from "react";
 import {getAirTicketsByQuery, saveAirTicketsByQuery} from "../../utils/air";
 
@@ -12,6 +20,7 @@ const AirTickets = () => {
   const [loading, setLoading] = useState(true)
   const [hasNoCachedData, setHasNoCachedData] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [bookedState, setBookedState] = useState('')
 
   const buttonEle = useRef(null);
 
@@ -44,6 +53,33 @@ const AirTickets = () => {
     })
   }
 
+  const handleClick = (id) => {
+    bookAirFlights(id).then(({ code }) => {
+      let state;
+      switch (code) {
+        case 'success':
+          state = 'success';
+          break;
+        case 'waiting_for_approval':
+          state = 'info';
+          break;
+        case 'all_booked':
+          state = 'warning';
+          break;
+        default:
+          state = '';
+          break;
+      }
+      setBookedState(state);
+    }).catch(() => {
+      setBookedState('something_error');
+    }).finally(() => {
+      setTimeout(() => {
+        setBookedState('');
+      }, 3000)
+    })
+  }
+
   const showResult = () => {
     if(!isSearched) {
       return null
@@ -55,9 +91,17 @@ const AirTickets = () => {
       {!!currentTickets.length ? <div className='list'>
         <div className='cards'>
           {
-            currentTickets.map(ticket => {
-              const { startTime, endTime, origin, destination, price, note, duration, aviation } = ticket
-              return <Card title={aviation} key={aviation} className='card-item'>
+            currentTickets.map((ticket, index) => {
+              const { startTime, endTime, origin, destination, price, note, duration, aviation, id } = ticket
+              return <Card
+                title={aviation}
+                key={aviation}
+                className='card-item'
+                extra={<Button
+                  onClick={() => handleClick(id)}
+                  data-testid={`book-btn-${index}`}
+                  >预定</Button>}
+              >
                 <p>起止时间：{startTime} - {endTime}</p>
                 <p>起止地点：{origin} - {destination}</p>
                 <p>价格：{price}</p>
@@ -87,6 +131,10 @@ const AirTickets = () => {
         <Button htmlType='submit' ref={buttonEle}>Search</Button>
       </Item>
     </Form>
+    {bookedState === 'success' && <p style={{ color: 'green'}}>预定成功</p>}
+    {bookedState === 'waiting_for_approval' && <p style={{ color: 'blue'}}>已经向部门主管发起申请，请等待哦</p>}
+    {bookedState === 'all_booked' && <p style={{ color: 'orange'}}>不好意思，该机票已订完，请试试预定其他机票吧</p>}
+    {bookedState === 'something_error' && <p style={{ color: 'red'}}>预定服务不可用，请稍后再试，谢谢~</p>}
     {loading ? <Spin data-testid='loading' /> : showResult()}
   </div>
 }
